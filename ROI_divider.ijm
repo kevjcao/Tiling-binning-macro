@@ -1,6 +1,12 @@
 #@ int(label="Array size (n x n)?") n
+#@File(label = "Output directory", style = "directory") output
+
+if (roiManager("Count") > 0) {
+	roiManager("Delete");
+}
 
 id = getImageID(); 
+title = getTitle(); 
 
 getLocationAndSize(coordX, coordY, w, h); 
 width = getWidth(); 
@@ -21,3 +27,4 @@ for (y = 0; y < n; y++) {
     }
 }
 roiManager("Multi Measure");
+saveAs("Results", output+ "/" + title + ".csv");
