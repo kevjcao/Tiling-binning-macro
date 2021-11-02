@@ -19,6 +19,12 @@ File = fullfile(FilePath, FileName);
 
 fprintf('%s \n\n', FileName);         
 
+
+%% parameters
+sectThick = 0.25;       % z-section thickenss, in um
+finalStackSize = 600;   % set final stack size -> value must be > stack size
+zplane = (0:sectThick:(finalStackSize-1)*sectThick).';
+
 %% take first derivative of raw Z profile to find inflection 
 z = raw(:,1);
 rois = raw(:,2:numel(raw(1,:)));
@@ -29,9 +35,8 @@ end
 
 [~,max] = max(firstDeriv(1:100,:));     %find index (z plane) of inflection pt (= max 1st deriv value)
 
-%% pad values to have inflection pt at z plane = 100 -> total z stack size = 600 
-finalStackSize = 600;   % set final stack size -> value must be > stack size
 
+%% pad values to have inflection pt at z plane = 100 -> total z stack size = 600 
 startZeroPad = 100 - max;
 endZeroPad = finalStackSize - (startZeroPad + length(rois));
 
@@ -43,4 +48,26 @@ for n = 1:numel(rois(1,:))
 end
 
 alignedROIs = cell2mat(padROIs);
+
+avgAlignROIs = mean(alignedROIs, 2);
+stdAlignROIs = std(alignedROIs, [], 2);
+
+rasterZ = figure(1);
+hold on
+imagesc(alignedROIs);
+xlim([0 numel(max)]);
+xlabel("ROIs");
+ylim([0 finalStackSize]);
+set(gca, 'TickDir', 'out');
+hold off
+
+averageZ = figure(2);
+hold on
+plot(zplane, avgAlignROIs);
+plot(zplane, stdAlignROIs);
+xlabel("Z-depth, um");
+ylabel("fluorescence, au");
+set(gca, 'TickDir', 'out');
+hold off
+
 
